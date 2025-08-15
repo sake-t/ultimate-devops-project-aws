@@ -5,3 +5,17 @@ In this lecture we will use the `docker compose` which is installed as part of `
 Just go to the directory of cloned repo and run `docker compose up`.
 
 Video of the lecture is self explanatory.
+
+1. Clone the repository
+2. Run docker compose (Issue- No space left on device)
+3. Modify volume to 30 gb
+4. df -h
+5. lsblk
+6. sudo apt install cloud-guest-utils
+7. sudo growpart /dev/xvda 1
+8. lsblk
+9. df-h
+10. Update file system (sudo resize2fs /dev/xvda1)
+11. df -h
+
+Access the application internally (Update SG)
