@@ -32,4 +32,31 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
 sudo docker run hello-world
 ```
 
+### Get permission denied Issue
+```
+docker ps 
+```
+
+### Add ubuntu user to docker Group
+```
+sudo usermod -aG docker ubuntu
+```
+### Again will Get permission denied Issue
+```
+docker ps 
+```
+### logout and login again
+```
+logout
+```
+### Verify Docker Installation (Now it will work)
+
+```
+docker ps
+```
+
+```
+docker images
+```
+
 **Note: If you are planning to install Docker on any other distributions of linux or other operating systems like Windows, please follow the official documentation for steps.**
