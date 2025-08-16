@@ -238,7 +238,12 @@ $ kubectl get ingress
 
 $ kubectl get pods -n kube-system
 
+aws-load-balancer-controller-986t677767d-f332v
+aws-load-balancer-controller-areg6t6fs7d-dh65v 
+
+$ kubectl logs aws-load-balancer-controller-986t677767d-f332v -n kube-system
+
 Acces by using Load Balancer DNS (Will not work)
 
-Access by example.com (Configure local machine DNS record to mkae it work)
+Access by example.com (Configure local machine DNS record to make it work)
 
