@@ -1,0 +1,68 @@
+### How to connect to kubernetes cluster 
+
+$ kubectl config view
+apiVersion: v1
+clusters: null
+contexts: null
+current-context: ""
+kind: Config
+preferences: {}
+users: null
+
+$ kubectl config current-context
+error: current-context is not set
+
+Install aws cli If not Installed
+$ aws configure (Set the credentials)
+$  ~/.aws/credentials
+
+$ aws eks update-kubeconfig --region ap-south-1 --name my-eks-cluster
+Added new context arn:aws:eks:ap-south-1:536697270232:cluster/my-eks-cluster to /home/ubuntu/.kube/config
+ubunt
+
+~$ kubectl config view
+apiVersion: v1
+clusters:
+- cluster:
+    certificate-authority-data: DATA+OMITTED
+    server: https://C2240393F383F92AEE739A397F0C5668.gr7.ap-south-1.eks.amazonaws.com
+  name: arn:aws:eks:ap-south-1:536697270232:cluster/my-eks-cluster
+contexts:
+- context:
+    cluster: arn:aws:eks:ap-south-1:536697270232:cluster/my-eks-cluster
+    user: arn:aws:eks:ap-south-1:536697270232:cluster/my-eks-cluster
+  name: arn:aws:eks:ap-south-1:536697270232:cluster/my-eks-cluster
+current-context: arn:aws:eks:ap-south-1:536697270232:cluster/my-eks-cluster
+kind: Config
+preferences: {}
+users:
+- name: arn:aws:eks:ap-south-1:536697270232:cluster/my-eks-cluster
+  user:
+    exec:
+      apiVersion: client.authentication.k8s.io/v1beta1
+      args:
+      - --region
+      - ap-south-1
+      - eks
+      - get-token
+      - --cluster-name
+      - my-eks-cluster
+      - --output
+      - json
+      command: aws
+      env: null
+      interactiveMode: IfAvailable
+      provideClusterInfo: false
+
+$ kubectl config current-context
+arn:aws:eks:ap-south-1:536697270232:cluster/my-eks-cluster
+
+$ kubectl get nodes
+NAME                                        STATUS   ROLES    AGE   VERSION
+ip-10-0-1-203.ap-south-1.compute.internal   Ready    <none>   25m   v1.30.14-eks-3abbec1
+ip-10-0-3-105.ap-south-1.compute.internal   Ready    <none>   25m   v1.30.14-eks-3abbec1
+
+
+
+
+
