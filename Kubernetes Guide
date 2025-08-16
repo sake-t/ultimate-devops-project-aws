@@ -141,3 +141,104 @@ $ kubectl config current-context
 arn:aws:eks:ap-south-1:536697270232:cluster/my-eks-cluster
 
 Now follow Above file 14-Kubernetes-ingress-controller.md
+OR FOLLOW BELOW
+
+Configue ALB Ingress controller in EKS cluster
+
+$ export cluster_name=my-eks-cluster
+
+$ oidc_id=$(aws eks describe-cluster --name $cluster_name --query "cluster.identity.oidc.issuer" --output text | cut -d '/' -f 5)
+
+$ echo $oidc_id
+C2240393F383F92AEE739A397F0C5668
+
+Associate OIDC ID with our EKS cluster
+$ eksctl utils associate-iam-oidc-provider --cluster $cluster_name --approve
+2025-08-16 11:47:32 [ℹ]  will create IAM Open ID Connect provider for cluster "my-eks-cluster" in "ap-south-1"
+2025-08-16 11:47:32 [✔]  created IAM Open ID Connect provider for cluster "my-eks-cluster" in "ap-south-1"
+
+# Download IAM Policy
+$ curl -O https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/v2.11.0/docs/install/iam_policy.json
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100  8759  100  8759    0     0  31950      0 --:--:-- --:--:-- --:--:-- 31967
+ubuntu@ip-172-31-45-58:~$ ls -l
+total 119308
+drwxr-xr-x  3 ubuntu ubuntu     4096 Aug 15 18:12 aws
+-rw-rw-r--  1 ubuntu ubuntu 61993687 Aug 16 05:45 awscliv2.zip
+drwxrwxr-x  2 ubuntu ubuntu     4096 Aug 16 05:44 eks
+drwxrwxr-x  3 ubuntu ubuntu     4096 Aug 15 16:55 go
+-rw-rw-r--  1 ubuntu ubuntu     8759 Aug 16 11:50 iam_policy.json
+-rw-rw-r--  1 ubuntu ubuntu 60129464 Aug 15 14:14 kubectl
+-rw-rw-r--  1 ubuntu ubuntu       64 Aug 15 14:14 kubectl.sha256
+drwxrwxr-x 14 ubuntu ubuntu     4096 Aug 16 06:17 ultimate-devops-project-aws
+drwxrwxr-x  9 ubuntu ubuntu     4096 Aug 15 16:10 ultimate-devops-project-demo
+
+# Create IAM policy on AWS account
+$ aws iam create-policy \
+    --policy-name AWSLoadBalancerControllerIAMPolicy \
+    --policy-document file://iam_policy.json
+
+# Create iamserviceacoout and mapping that to Role
+eksctl create iamserviceaccount \
+  --cluster=<your-cluster-name> \
+  --namespace=kube-system \
+  --name=aws-load-balancer-controller \
+  --role-name AmazonEKSLoadBalancerControllerRole \
+  --attach-policy-arn=arn:aws:iam::<your-aws-account-id>:policy/AWSLoadBalancerControllerIAMPolicy \
+  --approve
+
+If getting below error:
+2025-08-16 12:01:16 [ℹ]  1 iamserviceaccount (kube-system/aws-load-balancer-controller) was included (based on the include/exclude rules)
+2025-08-16 12:01:16 [!]  serviceaccounts that exist in Kubernetes will be excluded, use --override-existing-serviceaccounts to override
+
+USE BELOW COMMAND 
+
+eksctl create iamserviceaccount \
+  --cluster=<your-cluster-name> \
+  --namespace=kube-system \
+  --name=aws-load-balancer-controller \
+  --role-name AmazonEKSLoadBalancerControllerRole \
+  --attach-policy-arn=arn:aws:iam::<your-aws-account-id>:policy/AWSLoadBalancerControllerIAMPolicy \
+  --approve --override-existing-serviceaccounts
+
+Replace <your-cluster-name> and <your-aws-account-id> in command
+
+# Install Helm
+$ curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+$ chmod 700 get_helm.sh
+$ ./get_helm.sh
+$ helm version
+
+# Add helm repo
+
+$ helm repo add eks https://aws.github.io/eks-charts
+
+# Update the repo
+$ helm repo update eks
+
+# Install aws-load-balancer-controller
+
+$ helm install aws-load-balancer-controller eks/aws-load-balancer-controller -n kube-system --set clusterName=<your-cluster-name> --set serviceAccount.create=false --set serviceAccount.name=aws-load-balancer-controller --set region=<region> --set vpcId=<your-vpc-id>
+helm install aws-load-balancer-controller eks/aws-load-balancer-controller -n kube-system --set clusterName=my-eks-cluster --set serviceAccount.create=false --set serviceAccount.name=aws-load-balancer-controller --set region=ap-south-1 --set vpcId=vpc-0290efc54d2044124 
+
+$ kubectl get pods -n kube-system
+
+Go to the front-endproxy microservice
+
+$ kubectl edit svc opentelmetry-demo-frontendproxy
+Change to ClusterIP
+
+cd frontendproxy
+create ingress.yaml file 
+
+$ kubectl apply -f ingress.yaml
+
+$ kubectl get ingress
+
+$ kubectl get pods -n kube-system
+
+Acces by using Load Balancer DNS (Will not work)
+
+Access by example.com (Configure local machine DNS record to mkae it work)
+
