@@ -128,4 +128,16 @@ $ kubectl get svc opentelemetry-demo-frontendproxy
 NAME                               TYPE           CLUSTER-IP      EXTERNAL-IP                                                                PORT(S)          AGE
 opentelemetry-demo-frontendproxy   LoadBalancer   172.20.94.131   a73f5f5ce9b944d48b39b68bdc01dfe5-1465237507.ap-south-1.elb.amazonaws.com   8080:32361/TCP   28m
 
+# Download and extract the latest release of eksctl
+curl --silent --location "https://github.com/eksctl-io/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
 
+# Move the extracted binary to /usr/local/bin
+sudo mv /tmp/eksctl /usr/local/bin
+
+# Verify the installation
+eksctl version
+
+$ kubectl config current-context
+arn:aws:eks:ap-south-1:536697270232:cluster/my-eks-cluster
+
+Now follow Above file 14-Kubernetes-ingress-controller.md
