@@ -62,7 +62,70 @@ NAME                                        STATUS   ROLES    AGE   VERSION
 ip-10-0-1-203.ap-south-1.compute.internal   Ready    <none>   25m   v1.30.14-eks-3abbec1
 ip-10-0-3-105.ap-south-1.compute.internal   Ready    <none>   25m   v1.30.14-eks-3abbec1
 
+DEPLOY PROJECT IN KUBERNETES
++++++++++++++++++++++++++++++++++
+
+$ kubectl config current-context
+arn:aws:eks:ap-south-1:536697270232:cluster/my-eks-cluster
+
+$ kubectl get all
+NAME                 TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)   AGE
+service/kubernetes   ClusterIP   172.20.0.1   <none>        443/TCP   120m
 
 
+$ cd ultimate-devops-project-demo/
+$ cd kubernetes/
+$ ls -l
+total 144
+drwxrwxr-x 2 ubuntu ubuntu  4096 Aug 15 16:10 accounting
+drwxrwxr-x 2 ubuntu ubuntu  4096 Aug 15 16:10 ad
+drwxrwxr-x 2 ubuntu ubuntu  4096 Aug 15 16:10 cart
+drwxrwxr-x 2 ubuntu ubuntu  4096 Aug 15 16:10 checkout
+-rw-rw-r-- 1 ubuntu ubuntu 62517 Aug 15 16:10 complete-deploy.yaml
+drwxrwxr-x 2 ubuntu ubuntu  4096 Aug 15 16:10 currency
+drwxrwxr-x 2 ubuntu ubuntu  4096 Aug 15 16:10 email
+drwxrwxr-x 2 ubuntu ubuntu  4096 Aug 15 16:10 flagd
+drwxrwxr-x 2 ubuntu ubuntu  4096 Aug 15 16:10 frauddetection
+drwxrwxr-x 2 ubuntu ubuntu  4096 Aug 15 16:10 frontend
+drwxrwxr-x 2 ubuntu ubuntu  4096 Aug 15 16:10 frontendproxy
+drwxrwxr-x 2 ubuntu ubuntu  4096 Aug 15 16:10 imageprovider
+drwxrwxr-x 2 ubuntu ubuntu  4096 Aug 15 16:10 kafka
+drwxrwxr-x 2 ubuntu ubuntu  4096 Aug 15 16:10 loadgenerator
+drwxrwxr-x 2 ubuntu ubuntu  4096 Aug 15 16:10 payment
+drwxrwxr-x 2 ubuntu ubuntu  4096 Aug 15 16:10 productcatalog
+drwxrwxr-x 2 ubuntu ubuntu  4096 Aug 15 16:10 quote
+drwxrwxr-x 2 ubuntu ubuntu  4096 Aug 15 16:10 recommendation
+-rw-rw-r-- 1 ubuntu ubuntu   322 Aug 15 16:10 serviceaccount.yaml
+drwxrwxr-x 2 ubuntu ubuntu  4096 Aug 15 16:10 shipping
+drwxrwxr-x 2 ubuntu ubuntu  4096 Aug 15 16:10 valkey
+
+$ kubectl apply -f serviceaccount.yaml
+serviceaccount/opentelemetry-demo created
+
+$ kubectl get sa
+NAME                 SECRETS   AGE
+default              0         123m
+opentelemetry-demo   0         25s
+
+$ kubectl apply -f complete-deploy.yaml
+
+$ kubectl get pods
+
+$ kubectl get svc | grep frontendproxy
+opentelemetry-demo-frontendproxy           ClusterIP   172.20.94.131    <none>        8080/TCP            2m22s
+
+Cant access frontendproxy as we are using ClusterIP Here 
+$ kubectl get svc | grep frontendproxy
+opentelemetry-demo-frontendproxy           ClusterIP   172.20.94.131    <none>        8080/TCP            25m
+
+Edit ClusterIp to LoadBalancer:
+
+$ kubectl edit svc opentelemetry-demo-frontendproxy
+service/opentelemetry-demo-frontendproxy edited
+
+Created LoadBalancer(Load balancer type- Classic)(It will be created Automatically)
+$ kubectl get svc opentelemetry-demo-frontendproxy
+NAME                               TYPE           CLUSTER-IP      EXTERNAL-IP                                                                PORT(S)          AGE
+opentelemetry-demo-frontendproxy   LoadBalancer   172.20.94.131   a73f5f5ce9b944d48b39b68bdc01dfe5-1465237507.ap-south-1.elb.amazonaws.com   8080:32361/TCP   28m
 
 
